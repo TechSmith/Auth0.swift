@@ -12,7 +12,7 @@ private struct _StructCredentials {
 
 /// User's credentials obtained from Auth0.
 @objc(A0Credentials)
-public final class Credentials: NSObject {
+public final class Credentials: NSObject, Sendable {
 
     /// Token that can be used to make authenticated requests to the specified API (the **audience** value used on login).
     ///
@@ -22,7 +22,7 @@ public final class Credentials: NSObject {
     /// - [Audience](https://auth0.com/docs/secure/tokens/access-tokens/get-access-tokens#control-access-token-audience)
     public let accessToken: String
 
-    /// Type of the access token.
+    /// Indicates how the access token should be used. For example, as a bearer token.
     public let tokenType: String
 
     /// When the access token expires.
@@ -51,6 +51,8 @@ public final class Credentials: NSObject {
     /// ## See Also
     ///
     /// - [ID Tokens](https://auth0.com/docs/secure/tokens/id-tokens)
+    /// - [JSON Web Tokens](https://auth0.com/docs/secure/tokens/json-web-tokens)
+    /// - [jwt.io](https://jwt.io)
     public let idToken: String
 
     /// The scopes that have been granted by Auth0.
@@ -181,5 +183,20 @@ extension Credentials: NSSecureCoding {
 
     /// Property that enables secure coding. Equals to `true`.
     public static var supportsSecureCoding: Bool { return true }
+
+}
+
+// MARK: - Internal Initializer
+
+extension Credentials {
+
+    convenience init(from credentials: Credentials, idToken: String? = nil, refreshToken: String? = nil) {
+        self.init(accessToken: credentials.accessToken,
+                  tokenType: credentials.tokenType,
+                  idToken: idToken ?? credentials.idToken,
+                  refreshToken: refreshToken ?? credentials.refreshToken,
+                  expiresIn: credentials.expiresIn,
+                  scope: credentials.scope)
+    }
 
 }

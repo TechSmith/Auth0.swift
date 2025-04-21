@@ -2,9 +2,10 @@
 import Foundation
 
 /// Represents an error during a Web Auth operation.
-public struct WebAuthError: Auth0Error {
+public struct WebAuthError: Auth0Error, Sendable {
 
     enum Code: Equatable {
+        case webViewFailure(String)
         case noBundleIdentifier
         case transactionActiveAlready
         case invalidInvitationURL(String)
@@ -39,7 +40,7 @@ public struct WebAuthError: Auth0Error {
     /// build a valid URL.
     /// This error does not include a ``Auth0Error/cause-9wuyi``.
     public static let noBundleIdentifier: WebAuthError = .init(code: .noBundleIdentifier)
-    
+
     /// There is already an active transaction at the moment; therefore, this newly initiated transaction is canceled.
     /// This error does not include a ``Auth0Error/cause-9wuyi``.
     public static let transactionActiveAlready: WebAuthError = .init(code: .transactionActiveAlready)
@@ -82,6 +83,7 @@ extension WebAuthError {
 
     var message: String {
         switch self.code {
+        case .webViewFailure(let webViewFailureMessage): return webViewFailureMessage
         case .noBundleIdentifier: return "Unable to retrieve the bundle identifier from Bundle.main.bundleIdentifier,"
             + " or it could not be used to build a valid URL."
         case .transactionActiveAlready: return "Failed to start this transaction, as there is an active transaction at the"
