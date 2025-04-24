@@ -96,6 +96,7 @@ public struct Request<T, E: Auth0APIError>: Requestable {
      */
     public func parameters(_ extraParameters: [String: Any]) -> Self {
         var parameters = extraParameters.merging(self.parameters) {(current, _) in current}
+
         parameters["scope"] = includeRequiredScope(in: parameters["scope"] as? String)
 
         return Request(session: self.session, url: self.url, method: self.method, handle: self.handle, parameters: parameters, headers: self.headers, logger: self.logger, telemetry: self.telemetry)
@@ -140,7 +141,9 @@ public extension Request {
      */
     func start() async throws -> T {
         return try await withCheckedThrowingContinuation { continuation in
-            self.start(continuation.resume)
+            self.start { result in
+                continuation.resume(with: result)
+            }
         }
     }
 
